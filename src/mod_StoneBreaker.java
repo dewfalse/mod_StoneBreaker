@@ -324,7 +324,17 @@ public class mod_StoneBreaker extends BaseMod {
         	return false;
         }
 		int id = minecraft.theWorld.getBlockId((int)position.x, (int)position.y, (int)position.z);
-		if(id != blockId) {
+		boolean bSame = false;
+		if(id == blockId) {
+			bSame = true;
+		}
+		if(id == Block.dirt.blockID && blockId == Block.grass.blockID) {
+			bSame = true;
+		}
+		if(blockId == Block.dirt.blockID && id == Block.grass.blockID) {
+			bSame = true;
+		}
+		if(bSame == false) {
 			if(debugmode) System.out.println("breakBlock skip(BlockId)");
 			return true;
 		}
@@ -585,7 +595,18 @@ public class mod_StoneBreaker extends BaseMod {
 		for(Position vector : vectors) {
 			Position pos = position.addVector(vector.x, vector.y, vector.z);
 			int id = minecraft.theWorld.getBlockId((int)pos.x, (int)pos.y, (int)pos.z);
+			boolean bSame = false;
 			if(id == blockId) {
+				bSame = true;
+			}
+			if(id == Block.dirt.blockID && blockId == Block.grass.blockID) {
+				bSame = true;
+			}
+			if(blockId == Block.dirt.blockID && id == Block.grass.blockID) {
+				bSame = true;
+			}
+
+			if(bSame) {
 				if(positions.contains(pos) == false && newPositions.contains(pos) == false) {
 					if(debugmode) {
 						System.out.print("addNextBreakBlocks ");
