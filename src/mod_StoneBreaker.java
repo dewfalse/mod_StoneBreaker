@@ -54,6 +54,7 @@ public class mod_StoneBreaker extends BaseMod {
 	public static int prev_i;
 	public static int prev_j;
 	public static int prev_k;
+	public static int sideHit;
 	public static int blockId;
 	public static int metadata;
 	public static int prev_blockHitWait;
@@ -230,6 +231,7 @@ public class mod_StoneBreaker extends BaseMod {
 			prev_i = minecraft.objectMouseOver.blockX;
 			prev_j = minecraft.objectMouseOver.blockY;
 			prev_k = minecraft.objectMouseOver.blockZ;
+			sideHit = minecraft.objectMouseOver.sideHit;
 			blockId = minecraft.theWorld.getBlockId(prev_i, prev_j, prev_k);
 			Block block = Block.blocksList[blockId];
 			metadata = minecraft.theWorld.getBlockMetadata(prev_i, prev_j, prev_k);
