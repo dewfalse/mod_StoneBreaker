@@ -425,13 +425,55 @@ public class mod_StoneBreaker extends BaseMod {
 			break;
 		case mode_line:
 			positions.add(new Position(prev_i, prev_j, prev_k));
-			vectors.add(getDirection(minecraft));
+
+			/*
+			 * 2 = (0, 0, 1)
+			 * 3 = (0, 0, -1)
+			 * 4 = (1, 0, 0)
+			 * 5 = (-1, 0, 0)
+			 */
+			switch(sideHit) {
+			case 0:
+				vectors.add(new Position(0, 1, 0));
+				break;
+			case 1:
+				vectors.add(new Position(0, -1, 0));
+				break;
+			case 2:
+				vectors.add(new Position(0, 0, 1));
+				break;
+			case 3:
+				vectors.add(new Position(0, 0, -1));
+				break;
+			case 4:
+				vectors.add(new Position(1, 0, 0));
+				break;
+			case 5:
+				vectors.add(new Position(-1, 0, 0));
+				break;
+			}
 			break;
 		case mode_tunnel:
 			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
 			positions.add(new Position(prev_i, prev_j + 1, prev_k));
-			vectors.add(getDirection(minecraft));
+			switch(sideHit) {
+			case 2:
+				vectors.add(new Position(0, 0, 1));
+				break;
+			case 3:
+				vectors.add(new Position(0, 0, -1));
+				break;
+			case 4:
+				vectors.add(new Position(1, 0, 0));
+				break;
+			case 5:
+				vectors.add(new Position(-1, 0, 0));
+				break;
+			default:
+				vectors.add(getDirection(minecraft));
+				break;
+			}
 			break;
 		case mode_front_upper:
 			positions.add(new Position(prev_i, prev_j, prev_k));
