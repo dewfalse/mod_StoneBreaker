@@ -14,10 +14,10 @@ public class mod_StoneBreaker extends BaseMod {
 		int y;
 		int z;
 
-		public Position(int x, int y, int z) {
-			this.x = x;
-			this.y = y;
-			this.z = z;
+		public Position(long l, long m, long n) {
+			this.x = (int) l;
+			this.y = (int) m;
+			this.z = (int) n;
 		}
 
 		public Position subtract(Position position) {
@@ -372,10 +372,14 @@ public class mod_StoneBreaker extends BaseMod {
 	}
 
 	public Position getDirection(Minecraft minecraft) {
-		Position player_position = new Position((int)minecraft.thePlayer.posX, (int)minecraft.thePlayer.posY, (int)minecraft.thePlayer.posZ);
+		Position player_position = new Position(Math.round(minecraft.thePlayer.posX), Math.round(minecraft.thePlayer.posY), Math.round(minecraft.thePlayer.posZ));
 		Position block_position = new Position(prev_i, prev_j, prev_k);
 		Position tmp = player_position.subtract(block_position);
-		if(Math.abs(tmp.x) > Math.abs(tmp.z)) {
+		if(tmp.z == 0) {
+			return new Position(Math.round(Math.signum(tmp.x)), 0, 0);
+		} else if(tmp.x == 0) {
+			return new Position(0, 0, Math.round(Math.signum(tmp.x)));
+		} else if(Math.abs(tmp.x) > Math.abs(tmp.z)) {
 			if(tmp.x > 0) {
 				return new Position(1, 0, 0);
 			}
