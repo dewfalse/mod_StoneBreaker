@@ -256,27 +256,77 @@ public class mod_StoneBreaker extends BaseMod {
 		oldPositions.addAll(positions);
 
 
-		for(Position position : oldPositions) {
-			if(i < 16) {
+		int breakOnce = 1;
+
+		// ˆê“x‚É‰ó‚·‚Ì‚Í‚P‚UŒÂ‚Ü‚Å‚Æ‚·‚é
+		if(oldPositions.size() < breakOnce) {
+			int j = 0;
+			// ‚P‚UŒÂ–ÚˆÈ~‚ÍŽŸ‰ñ
+			for(Position position : oldPositions) {
+				if(j >= breakOnce) {
+					newPositions.add(position);
+				}
+				j++;
+			}
+
+			j = 0;
+			// Žü•ÓƒuƒƒbƒN‚ðŽŸ‰ñ‚É—\–ñ
+			for(Position position : oldPositions) {
+				if(j >= breakOnce) {
+					break;
+				}
+				j++;
 				for(Position new_pos : addNextBreakBlocks(minecraft, position)) {
 					if(positions.contains(new_pos) == false) {
 						newPositions.add(new_pos);
 					}
 				}
+			}
+
+			j = 0;
+			// —\–ñÏ‚ÝƒuƒƒbƒN‚ð”j‰ó
+			for(Position position : oldPositions) {
+				if(j >= breakOnce) {
+					break;
+				}
+				j++;
+				// ƒc[ƒ‹”j‘¹‚ÍI—¹
 				if(breakBlock(minecraft, position) == false) {
 					positions.clear();
 					return;
 				}
+				// ˆêŠ‡”j‰óãŒÀ‚ÍI—¹
 				if(breaklimit > 0 && breakcount >= breaklimit) {
 					positions.clear();
 					breakcount = 0;
 					return;
 				}
-				i++;
-				continue;
 			}
-			i++;
-			newPositions.add(position);
+		}
+		// ‚·‚×‚Ä‰ó‚·
+		else {
+			// Žü•ÓƒuƒƒbƒN‚ðŽŸ‰ñ‚É—\–ñ
+			for(Position position : oldPositions) {
+				for(Position new_pos : addNextBreakBlocks(minecraft, position)) {
+					if(positions.contains(new_pos) == false) {
+						newPositions.add(new_pos);
+					}
+				}
+			}
+			// —\–ñÏ‚ÝƒuƒƒbƒN‚ð”j‰ó
+			for(Position position : oldPositions) {
+				// ƒc[ƒ‹”j‘¹‚ÍI—¹
+				if(breakBlock(minecraft, position) == false) {
+					positions.clear();
+					return;
+				}
+				// ˆêŠ‡”j‰óãŒÀ‚ÍI—¹
+				if(breaklimit > 0 && breakcount >= breaklimit) {
+					positions.clear();
+					breakcount = 0;
+					return;
+				}
+			}
 		}
 
 		positions = newPositions;
