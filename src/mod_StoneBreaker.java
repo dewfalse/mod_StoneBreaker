@@ -1,6 +1,6 @@
 package net.minecraft.src;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.lwjgl.input.Mouse;
@@ -57,8 +57,8 @@ public class mod_StoneBreaker extends BaseMod {
 	public static int blockId;
 	public static int metadata;
 	public static int prev_blockHitWait;
-	public static Set<Position> vectors = new HashSet();
-	public static Set<Position> positions = new HashSet();
+	public static Set<Position> vectors = new LinkedHashSet();
+	public static Set<Position> positions = new LinkedHashSet();
 
 	public static final int mode_off = 0;
 	public static final int mode_line = 1;
@@ -79,7 +79,7 @@ public class mod_StoneBreaker extends BaseMod {
 	@MLProp(info = "separate by ','")
 	public static String blockIDs = "1";
 
-	public static Set<Integer> targetIDs = new HashSet();
+	public static Set<Integer> targetIDs = new LinkedHashSet();
 
 	public static boolean debugmode = false;
 
@@ -155,6 +155,9 @@ public class mod_StoneBreaker extends BaseMod {
 
 	@Override
 	public boolean onTickInGame(float f, Minecraft minecraft) {
+		if(minecraft.theWorld.isRemote) {
+			return false;
+		}
 		if(Keyboard.isKeyDown(mode_key)) {
 			key_push_times++;
 		} else if(key_push_times > 0) {
@@ -246,8 +249,8 @@ public class mod_StoneBreaker extends BaseMod {
 			System.out.println(positions);
 		}
 		int i = 0;
-		Set<Position> oldPositions = new HashSet();
-		Set<Position> newPositions = new HashSet();
+		Set<Position> oldPositions = new LinkedHashSet();
+		Set<Position> newPositions = new LinkedHashSet();
 		oldPositions.addAll(positions);
 
 
@@ -387,7 +390,7 @@ public class mod_StoneBreaker extends BaseMod {
 	public Set<Position> getBackDirections(Minecraft minecraft) {
 		Position v = getDirection(minecraft);
 
-		Set<Position> set = new HashSet();
+		Set<Position> set = new LinkedHashSet();
 		if(v.x == 1) {
 			set.add(new Position(-1, 0, 1));set.add(new Position(-1, 0, 0));set.add(new Position(-1, 0, -1));
 			set.add(new Position(-1, 1, 1));set.add(new Position(-1, 1, 0));set.add(new Position(-1, 1, -1));
@@ -530,7 +533,7 @@ public class mod_StoneBreaker extends BaseMod {
 	}
 
 	public Set<Position> addNextBreakBlocks(Minecraft minecraft, Position position) {
-		Set<Position> newPositions = new HashSet();
+		Set<Position> newPositions = new LinkedHashSet();
 		for(Position vector : vectors) {
 			Position pos = position.addVector(vector.x, vector.y, vector.z);
 			int id = minecraft.theWorld.getBlockId((int)pos.x, (int)pos.y, (int)pos.z);
