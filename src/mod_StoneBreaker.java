@@ -102,7 +102,7 @@ public class mod_StoneBreaker extends BaseMod {
 
 	@Override
 	public String getVersion() {
-		return "[1.2.3] StoneBreaker 0.0.2";
+		return "[1.2.3] StoneBreaker 0.0.3";
 	}
 
 	@Override
