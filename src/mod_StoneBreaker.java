@@ -64,12 +64,12 @@ public class mod_StoneBreaker extends BaseMod {
 	public static final int mode_off = 0;
 	public static final int mode_line = 1;
 	public static final int mode_tunnel = 2;
-	public static final int mode_front_upper = 3;
-	public static final int mode_front_under = 4;
-	public static final int mode_front = 5;
-	public static final int mode_upper = 6;
-	public static final int mode_under = 7;
-	public static final int mode_horizontal = 8;
+	public static final int mode_upstair = 3;
+	public static final int mode_downstair = 4;
+	public static final int mode_upper = 5;
+	public static final int mode_under = 6;
+	public static final int mode_horizontal = 7;
+	public static final int mode_vertical = 8;
 	public static final int mode_all = 9;
 	public static final int mode_max = 10;
 
@@ -95,7 +95,15 @@ public class mod_StoneBreaker extends BaseMod {
 
 	@MLProp(info = "maximum number of block break (0 = unlimited)")
 	public static int breaklimit = 0;
+	@MLProp(info = "maximum distance of break from player (0 = unlimited)")
+	public static int distancelimit = 0;
+	@MLProp(info = "virtical distance limit")
+	public static boolean virtical_distancelimit = true;
 
+	@MLProp(info = "drop blocks near by player")
+	public static boolean droptoplayer = true;
+
+	public static boolean bObfuscated = true;
 
 	//@MLProp
 	//public static int break_blocks_per_tick = 16;
@@ -129,14 +137,11 @@ public class mod_StoneBreaker extends BaseMod {
 		case mode_tunnel:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : TUNNEL");
 			break;
-		case mode_front_upper:
-			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : FRONT_UPPER");
+		case mode_upstair:
+			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : UPSTAIR");
 			break;
-		case mode_front_under:
-			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : FRONT_UNDER");
-			break;
-		case mode_front:
-			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : FRONT");
+		case mode_downstair:
+			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : DOWNSTAIR");
 			break;
 		case mode_upper:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : UPPER");
@@ -146,6 +151,9 @@ public class mod_StoneBreaker extends BaseMod {
 			break;
 		case mode_horizontal:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : HORIZONTAL");
+			break;
+		case mode_vertical:
+			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : VERTICAL");
 			break;
 		case mode_all:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : ALL");
@@ -174,31 +182,60 @@ public class mod_StoneBreaker extends BaseMod {
 
 
 		boolean breakflag = false;
-		try {
-			if(minecraft.playerController.isNotCreative()) {
-				// blockHitWait obfuscate i
-				int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerSP.class, minecraft.playerController, "i");
-				//int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerSP.class, minecraft.playerController, "blockHitWait");
-				if(blockHitWait == 5 && blockHitWait != prev_blockHitWait) {
-					breakflag = true;
+
+		if(bObfuscated) {
+			try {
+				if(minecraft.playerController.isNotCreative()) {
+					// blockHitWait obfuscate i
+					int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerSP.class, minecraft.playerController, "i");
+					if(blockHitWait == 5 && blockHitWait != prev_blockHitWait) {
+						breakflag = true;
+					}
+					prev_blockHitWait = blockHitWait;
 				}
-				prev_blockHitWait = blockHitWait;
-			}
-			else {
-				// blockHitWait obfuscate i
-				int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerSP.class, minecraft.playerController, "c");
-				//int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerCreative.class, minecraft.playerController, "field_35647_c");
-				if(blockHitWait != prev_blockHitWait) {
-					breakflag = true;
+				else {
+					// blockHitWait obfuscate i
+					int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerCreative.class, minecraft.playerController, "c");
+					if(blockHitWait != prev_blockHitWait) {
+						breakflag = true;
+					}
+					prev_blockHitWait = blockHitWait;
 				}
-				prev_blockHitWait = blockHitWait;
+			} catch (IllegalArgumentException e) {
+				bObfuscated = false;
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				bObfuscated = false;
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				bObfuscated = false;
+				e.printStackTrace();
 			}
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+		} else {
+			try {
+				if(minecraft.playerController.isNotCreative()) {
+					// blockHitWait obfuscate i
+					int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerSP.class, minecraft.playerController, "blockHitWait");
+					if(blockHitWait == 5 && blockHitWait != prev_blockHitWait) {
+						breakflag = true;
+					}
+					prev_blockHitWait = blockHitWait;
+				}
+				else {
+					// blockHitWait obfuscate i
+					int blockHitWait = (Integer) ModLoader.getPrivateValue(PlayerControllerCreative.class, minecraft.playerController, "field_35647_c");
+					if(blockHitWait != prev_blockHitWait) {
+						breakflag = true;
+					}
+					prev_blockHitWait = blockHitWait;
+				}
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
+			}
 		}
 
 
@@ -352,11 +389,6 @@ public class mod_StoneBreaker extends BaseMod {
 			System.out.println(" start");
 		}
 
-		if(position.x == 0.0F && position.y == 0.0F && position.z == 0.0F) {
-			if(debugmode) System.out.println("breakBlock abnormal");
-
-		}
-
 		if(position.y < 1 || position.y > 255) {
 			return true;
 		}
@@ -388,9 +420,25 @@ public class mod_StoneBreaker extends BaseMod {
 			if(debugmode) System.out.println("breakBlock skip(BlockId)");
 			return true;
 		}
-		Block block = Block.blocksList[id];
 
-		if(Item.itemsList[itemstack.itemID] instanceof ItemTool == false) {
+		// ignore liquid and air
+		Block block = Block.blocksList[id];
+		if(block.blockMaterial.isLiquid() || block.blockMaterial == Material.air) {
+			if(debugmode) System.out.println("breakBlock skip(blockMaterial)");
+			return true;
+		}
+
+		// ignore bedrock
+		if(blockId == Block.bedrock.blockID) {
+			return true;
+		}
+
+		// item require pickaxe or axe or shovel or shears
+		if(Item.itemsList[itemstack.itemID] instanceof ItemTool) {
+
+		} else if(itemstack.itemID == Item.shears.shiftedIndex) {
+
+		} else {
 			if(debugmode) System.out.println("breakBlock skip(Item not ItemTool)");
 			return false;
 		}
@@ -423,7 +471,11 @@ public class mod_StoneBreaker extends BaseMod {
 
         if (flag && flag1)
         {
-        	block.harvestBlock(minecraft.theWorld, minecraft.thePlayer, (int)position.x, (int)position.y, (int)position.z, i);
+    		if(droptoplayer) {
+        		block.harvestBlock(minecraft.theWorld, minecraft.thePlayer, (int)minecraft.thePlayer.posX, (int)minecraft.thePlayer.posY, (int)minecraft.thePlayer.posZ, i);
+    		} else {
+        		block.harvestBlock(minecraft.theWorld, minecraft.thePlayer, (int)position.x, (int)position.y, (int)position.z, i);
+    		}
         }
 
 		if(debugmode) System.out.println("breakBlock end");
@@ -432,25 +484,23 @@ public class mod_StoneBreaker extends BaseMod {
 	}
 
 	public Position getDirection(Minecraft minecraft) {
-		Position player_position = new Position(Math.round(minecraft.thePlayer.posX), Math.round(minecraft.thePlayer.posY), Math.round(minecraft.thePlayer.posZ));
-		Position block_position = new Position(prev_i, prev_j, prev_k);
-		Position tmp = player_position.subtract(block_position);
-		if(tmp.z == 0) {
-			return new Position(Math.round(Math.signum(tmp.x)), 0, 0);
-		} else if(tmp.x == 0) {
-			return new Position(0, 0, Math.round(Math.signum(tmp.x)));
-		} else if(Math.abs(tmp.x) > Math.abs(tmp.z)) {
-			if(tmp.x > 0) {
-				return new Position(1, 0, 0);
-			}
+		/*
+		 * 2 = (0, 0, 1)
+		 * 3 = (0, 0, -1)
+		 * 4 = (1, 0, 0)
+		 * 5 = (-1, 0, 0)
+		 */
+		switch(sideHit) {
+		case 2:
+			return new Position(0, 0, 1);
+		case 3:
+			return new Position(0, 0, -1);
+		case 4:
+			return new Position(1, 0, 0);
+		case 5:
 			return new Position(-1, 0, 0);
 		}
-		else {
-			if(tmp.z > 0) {
-				return new Position(0, 0, 1);
-			}
-			return new Position(0, 0, -1);
-		}
+		return new Position(0, 0, 0);
 	}
 
 	public Set<Position> getBackDirections(Minecraft minecraft) {
@@ -483,100 +533,52 @@ public class mod_StoneBreaker extends BaseMod {
 		Set<Position> backDirections = getBackDirections(minecraft);
 		positions.clear();
 		vectors.clear();
+		Position v;
 
 		switch(mode) {
 		case mode_off:
 			break;
 		case mode_line:
 			positions.add(new Position(prev_i, prev_j, prev_k));
-
-			/*
-			 * 2 = (0, 0, 1)
-			 * 3 = (0, 0, -1)
-			 * 4 = (1, 0, 0)
-			 * 5 = (-1, 0, 0)
-			 */
-			switch(sideHit) {
-			case 0:
-				vectors.add(new Position(0, 1, 0));
-				break;
-			case 1:
-				vectors.add(new Position(0, -1, 0));
-				break;
-			case 2:
-				vectors.add(new Position(0, 0, 1));
-				break;
-			case 3:
-				vectors.add(new Position(0, 0, -1));
-				break;
-			case 4:
-				vectors.add(new Position(1, 0, 0));
-				break;
-			case 5:
-				vectors.add(new Position(-1, 0, 0));
-				break;
-			}
+			vectors.add(getDirection(minecraft));
 			break;
 		case mode_tunnel:
 			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
 			positions.add(new Position(prev_i, prev_j + 1, prev_k));
+			vectors.add(getDirection(minecraft));
+			break;
+		case mode_downstair:
+			positions.add(new Position(prev_i, prev_j - 1, prev_k));
+			positions.add(new Position(prev_i, prev_j, prev_k));
+			positions.add(new Position(prev_i, prev_j + 1, prev_k));
 			switch(sideHit) {
-			case 2:
-				vectors.add(new Position(0, 0, 1));
-				break;
-			case 3:
-				vectors.add(new Position(0, 0, -1));
-				break;
-			case 4:
-				vectors.add(new Position(1, 0, 0));
-				break;
-			case 5:
-				vectors.add(new Position(-1, 0, 0));
+			case 0:
+			case 1:
+				vectors.clear();
 				break;
 			default:
-				vectors.add(getDirection(minecraft));
+				v = getDirection(minecraft);
+				v.y = -1;
+				vectors.add(v);
 				break;
 			}
 			break;
-		case mode_front_upper:
+		case mode_upstair:
+			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
-			vectors.add(new Position(1, 1, 1));vectors.add(new Position(1, 1, 0));vectors.add(new Position(1, 1, -1));
-			vectors.add(new Position(1, 0, 1));vectors.add(new Position(1, 0, 0));vectors.add(new Position(1, 0, -1));
-
-			vectors.add(new Position(0, 1, 1));vectors.add(new Position(0, 1, 0));vectors.add(new Position(0, 1, -1));
-			vectors.add(new Position(0, 0, 1));/*vectors.add(new Position(0, 0, 0));*/vectors.add(new Position(0, 0, -1));
-
-			vectors.add(new Position(-1, 1, 1));vectors.add(new Position(-1, 1, 0));vectors.add(new Position(-1, 1, -1));
-			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
-			vectors.removeAll(backDirections);
-			break;
-		case mode_front_under:
-			positions.add(new Position(prev_i, prev_j, prev_k));
-			vectors.add(new Position(1, 0, 1));vectors.add(new Position(1, 0, 0));vectors.add(new Position(1, 0, -1));
-			vectors.add(new Position(1, -1, 1));vectors.add(new Position(1, -1, 0));vectors.add(new Position(1, -1, -1));
-
-			vectors.add(new Position(0, 0, 1));/*vectors.add(new Position(0, 0, 0));*/vectors.add(new Position(0, 0, -1));
-			vectors.add(new Position(0, -1, 1));vectors.add(new Position(0, -1, 0));vectors.add(new Position(-1, -1, -1));
-
-			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
-			vectors.add(new Position(-1, -1, 1));vectors.add(new Position(-1, -1, 0));vectors.add(new Position(-1, -1, -1));
-			vectors.removeAll(backDirections);
-			break;
-		case mode_front:
-			positions.add(new Position(prev_i, prev_j, prev_k));
-			vectors.add(new Position(1, 1, 1));vectors.add(new Position(1, 1, 0));vectors.add(new Position(1, 1, -1));
-			vectors.add(new Position(1, 0, 1));vectors.add(new Position(1, 0, 0));vectors.add(new Position(1, 0, -1));
-			vectors.add(new Position(1, -1, 1));vectors.add(new Position(1, -1, 0));vectors.add(new Position(1, -1, -1));
-
-			vectors.add(new Position(0, 1, 1));vectors.add(new Position(0, 1, 0));vectors.add(new Position(0, 1, -1));
-			vectors.add(new Position(0, 0, 1));/*vectors.add(new Position(0, 0, 0));*/vectors.add(new Position(0, 0, -1));
-			vectors.add(new Position(0, -1, 1));vectors.add(new Position(0, -1, 0));vectors.add(new Position(-1, -1, -1));
-
-			vectors.add(new Position(-1, 1, 1));vectors.add(new Position(-1, 1, 0));vectors.add(new Position(-1, 1, -1));
-			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
-			vectors.add(new Position(-1, -1, 1));vectors.add(new Position(-1, -1, 0));vectors.add(new Position(-1, -1, -1));
-			vectors.removeAll(backDirections);
+			positions.add(new Position(prev_i, prev_j + 1, prev_k));
+			switch(sideHit) {
+			case 0:
+			case 1:
+				vectors.clear();
+				break;
+			default:
+				v = getDirection(minecraft);
+				v.y = 1;
+				vectors.add(v);
+				break;
+			}
 			break;
 		case mode_upper:
 			positions.add(new Position(prev_i, prev_j, prev_k));
@@ -588,17 +590,36 @@ public class mod_StoneBreaker extends BaseMod {
 
 			vectors.add(new Position(-1, 1, 1));vectors.add(new Position(-1, 1, 0));vectors.add(new Position(-1, 1, -1));
 			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
+			switch(sideHit) {
+			case 0:
+			case 1:
+				vectors.clear();
+				break;
+			default:
+				vectors.removeAll(backDirections);
+				break;
+			}
+
 			break;
 		case mode_under:
 			positions.add(new Position(prev_i, prev_j, prev_k));
+			vectors.add(new Position(1, 0, 1));vectors.add(new Position(1, 0, 0));vectors.add(new Position(1, 0, -1));
+			vectors.add(new Position(1, -1, 1));vectors.add(new Position(1, -1, 0));vectors.add(new Position(1, -1, -1));
+
 			vectors.add(new Position(0, 0, 1));/*vectors.add(new Position(0, 0, 0));*/vectors.add(new Position(0, 0, -1));
 			vectors.add(new Position(0, -1, 1));vectors.add(new Position(0, -1, 0));vectors.add(new Position(-1, -1, -1));
 
 			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
 			vectors.add(new Position(-1, -1, 1));vectors.add(new Position(-1, -1, 0));vectors.add(new Position(-1, -1, -1));
-
-			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, 0));vectors.add(new Position(-1, 0, -1));
-			vectors.add(new Position(-1, -1, 1));vectors.add(new Position(-1, -1, 0));vectors.add(new Position(-1, -1, -1));
+			switch(sideHit) {
+			case 0:
+			case 1:
+				vectors.clear();
+				break;
+			default:
+				vectors.removeAll(backDirections);
+				break;
+			}
 			break;
 		case mode_horizontal:
 			positions.add(new Position(prev_i, prev_j, prev_k));
@@ -606,6 +627,22 @@ public class mod_StoneBreaker extends BaseMod {
 			vectors.add(new Position(0, 0, 1));vectors.add(new Position(0, 0, -1));
 			vectors.add(new Position(1, 0, 1));vectors.add(new Position(1, 0, -1));
 			vectors.add(new Position(-1, 0, 1));vectors.add(new Position(-1, 0, -1));
+			break;
+		case mode_vertical:
+			positions.add(new Position(prev_i, prev_j, prev_k));
+
+			/*
+			 * 2 = (0, 0, 1)
+			 * 3 = (0, 0, -1)
+			 * 4 = (1, 0, 0)
+			 * 5 = (-1, 0, 0)
+			 */
+			switch(sideHit) {
+			case 0:
+			case 1:
+				vectors.add(new Position(0, -1, 0));
+				break;
+			}
 			break;
 		case mode_all:
 			positions.add(new Position(prev_i, prev_j, prev_k));
@@ -643,7 +680,42 @@ public class mod_StoneBreaker extends BaseMod {
 	public Set<Position> addNextBreakBlocks(Minecraft minecraft, Position position) {
 		Set<Position> newPositions = new LinkedHashSet();
 		for(Position vector : vectors) {
+			if(vector.x == 0 && vector.y == 0 && vector.z == 0) {
+				continue;
+			}
+
 			Position pos = position.addVector(vector.x, vector.y, vector.z);
+
+			if(distancelimit > 0) {
+				if(Math.abs((int)Math.round(minecraft.thePlayer.posX) - pos.x) > distancelimit) {
+					continue;
+				}
+				if(virtical_distancelimit && Math.abs((int)Math.round(minecraft.thePlayer.posY) - pos.y) > distancelimit) {
+					continue;
+				}
+				if(Math.abs((int)Math.round(minecraft.thePlayer.posZ) - pos.z) > distancelimit) {
+					continue;
+				}
+
+			}
+
+			switch(mode) {
+			case mode_under:
+				if((int)Math.round(minecraft.thePlayer.posX) == position.x && (int)Math.round(minecraft.thePlayer.posZ) == position.z) {
+					return newPositions;
+				}
+				break;
+			case mode_vertical:
+				if((int)Math.round(minecraft.thePlayer.posX) == position.x && (int)Math.round(minecraft.thePlayer.posZ) == position.z && (int)Math.round(minecraft.thePlayer.posY) > position.y) {
+					return newPositions;
+				}
+				break;
+			case mode_all:
+				if((int)Math.round(minecraft.thePlayer.posX) == position.x && (int)Math.round(minecraft.thePlayer.posZ) == position.z && (int)Math.round(minecraft.thePlayer.posY) > position.y) {
+					return newPositions;
+				}
+				break;
+			}
 			int id = minecraft.theWorld.getBlockId((int)pos.x, (int)pos.y, (int)pos.z);
 			boolean bSame = false;
 			if(id == blockId) {
