@@ -62,18 +62,20 @@ public class mod_StoneBreaker extends BaseMod {
 	public static Set<Position> positions = new LinkedHashSet();
 
 	public static final int mode_off = 0;
-	public static final int mode_line = 1;
-	public static final int mode_tunnel = 2;
-	public static final int mode_upstair = 3;
-	public static final int mode_downstair = 4;
-	public static final int mode_upper = 5;
-	public static final int mode_under = 6;
-	public static final int mode_horizontal = 7;
-	public static final int mode_vertical = 8;
-	public static final int mode_all = 9;
-	public static final int mode_max = 10;
+	public static final int mode_register = 1;
+	public static final int mode_unregister = 2;
+	public static final int mode_line = 3;
+	public static final int mode_tunnel = 4;
+	public static final int mode_upstair = 5;
+	public static final int mode_downstair = 6;
+	public static final int mode_upper = 7;
+	public static final int mode_under = 8;
+	public static final int mode_horizontal = 9;
+	public static final int mode_vertical = 10;
+	public static final int mode_all = 11;
+	public static final int mode_max = 12;
 
-	@MLProp(min = 0, max = 9)
+	@MLProp(min = 0, max = mode_max)
 	public static int mode = mode_off;
 
 
@@ -110,7 +112,7 @@ public class mod_StoneBreaker extends BaseMod {
 
 	@Override
 	public String getVersion() {
-		return "[1.2.3] StoneBreaker 0.0.3";
+		return "[1.2.4] StoneBreaker 0.0.5";
 	}
 
 	@Override
@@ -126,6 +128,11 @@ public class mod_StoneBreaker extends BaseMod {
 
 	}
 
+	public void printTargetIDs(Minecraft minecraft) {
+		String s = "StoneBreaker target = ";
+		s += targetIDs;
+		minecraft.ingameGUI.addChatMessage(s);
+	}
 	public void printMode(Minecraft minecraft) {
 		switch(mode) {
 		case mode_off:
@@ -155,6 +162,12 @@ public class mod_StoneBreaker extends BaseMod {
 		case mode_vertical:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : VERTICAL");
 			break;
+		case mode_register:
+			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : REGISTER");
+			break;
+		case mode_unregister:
+			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : UNREGISTER");
+			break;
 		case mode_all:
 			minecraft.ingameGUI.addChatMessage("StoneBreaker mode : ALL");
 			break;
@@ -177,6 +190,7 @@ public class mod_StoneBreaker extends BaseMod {
 
 		if(bInit == false) {
 			printMode(minecraft);
+			printTargetIDs(minecraft);
 			bInit = true;
 		}
 
@@ -240,14 +254,35 @@ public class mod_StoneBreaker extends BaseMod {
 
 
 		if(breakflag) {
-			if(targetIDs.contains(blockId)) {
-				startBreak(minecraft);
-			} else {
-				if(debugmode) {
-					System.out.print("BlockId ");
-					System.out.print(blockId);
-					System.out.print(" not in targetIDs ");
-					System.out.println(targetIDs);
+			switch(mode) {
+			case mode_register:
+				if(targetIDs.contains(blockId) == false) {
+					targetIDs.add(blockId);
+					String s = "StoneBreaker add target : ";
+					s += blockId;
+					minecraft.ingameGUI.addChatMessage(s);
+					printTargetIDs(minecraft);
+				}
+				break;
+			case mode_unregister:
+				if(targetIDs.contains(blockId)) {
+					targetIDs.remove(blockId);
+					String s = "StoneBreaker remove target : ";
+					s += blockId;
+					minecraft.ingameGUI.addChatMessage(s);
+					printTargetIDs(minecraft);
+				}
+				break;
+			default:
+				if(targetIDs.contains(blockId)) {
+					startBreak(minecraft);
+				} else {
+					if(debugmode) {
+						System.out.print("BlockId ");
+						System.out.print(blockId);
+						System.out.print(" not in targetIDs ");
+						System.out.println(targetIDs);
+					}
 				}
 			}
 		}
@@ -543,15 +578,15 @@ public class mod_StoneBreaker extends BaseMod {
 			vectors.add(getDirection(minecraft));
 			break;
 		case mode_tunnel:
-			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
 			positions.add(new Position(prev_i, prev_j + 1, prev_k));
+			positions.add(new Position(prev_i, prev_j + 2, prev_k));
 			vectors.add(getDirection(minecraft));
 			break;
 		case mode_downstair:
-			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
 			positions.add(new Position(prev_i, prev_j + 1, prev_k));
+			positions.add(new Position(prev_i, prev_j + 2, prev_k));
 			switch(sideHit) {
 			case 0:
 			case 1:
@@ -565,9 +600,9 @@ public class mod_StoneBreaker extends BaseMod {
 			}
 			break;
 		case mode_upstair:
-			positions.add(new Position(prev_i, prev_j - 1, prev_k));
 			positions.add(new Position(prev_i, prev_j, prev_k));
 			positions.add(new Position(prev_i, prev_j + 1, prev_k));
+			positions.add(new Position(prev_i, prev_j + 2, prev_k));
 			switch(sideHit) {
 			case 0:
 			case 1:
@@ -639,6 +674,7 @@ public class mod_StoneBreaker extends BaseMod {
 			 */
 			switch(sideHit) {
 			case 0:
+				vectors.add(new Position(0, 1, 0));
 			case 1:
 				vectors.add(new Position(0, -1, 0));
 				break;
