@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.EnumMovingObjectType;
+import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 
@@ -30,7 +31,7 @@ public class RegisterKeyHandler extends KeyHandler {
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb,
 			boolean tickEnd, boolean isRepeat) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 
@@ -52,6 +53,9 @@ public class RegisterKeyHandler extends KeyHandler {
 			int sideHit  = mc.objectMouseOver.sideHit;
 			int blockId = mc.theWorld.getBlockId(x, y, z);
 			int metadata = mc.theWorld.getBlockMetadata(x, y, z);
+			if(mc.thePlayer.isSneaking()) {
+				metadata = OreDictionary.WILDCARD_VALUE;
+			}
 
 			sendPacket(EnumCommand.REGISTER, blockId, metadata);
 		}
@@ -72,7 +76,7 @@ public class RegisterKeyHandler extends KeyHandler {
 			Minecraft mc = Minecraft.getMinecraft();
 			mc.thePlayer.sendQueue.addToSendQueue(packet);
 		} catch (IOException e) {
-			// TODO ©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
+			// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
 			e.printStackTrace();
 		}
 	}
