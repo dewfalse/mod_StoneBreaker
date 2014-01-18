@@ -1,6 +1,7 @@
 package stonebreaker;
 
 import net.minecraft.block.Block;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class BlockInfo {
 	public int blockId = 0;
@@ -32,7 +33,7 @@ public class BlockInfo {
 		if (obj instanceof BlockInfo) {
 			BlockInfo b = (BlockInfo) obj;
 			if (blockId == b.blockId) {
-				if(metadata == -1 || b.metadata == -1) {
+				if(metadata == OreDictionary.WILDCARD_VALUE || b.metadata == OreDictionary.WILDCARD_VALUE) {
 					return true;
 				}
 				return metadata == b.metadata;
