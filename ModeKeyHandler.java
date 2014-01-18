@@ -25,7 +25,7 @@ public class ModeKeyHandler extends KeyHandler {
 	@Override
 	public void keyDown(EnumSet<TickType> types, KeyBinding kb,
 			boolean tickEnd, boolean isRepeat) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 
