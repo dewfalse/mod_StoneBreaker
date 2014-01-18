@@ -23,6 +23,7 @@ import net.minecraft.network.packet.Packet14BlockDig;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.src.ModLoader;
 import net.minecraft.util.EnumMovingObjectType;
+import net.minecraftforge.oredict.OreDictionary;
 
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.ObfuscationReflectionHelper;
@@ -62,7 +63,7 @@ public class ClientTickHandler implements ITickHandler {
 
 	@Override
 	public String getLabel() {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 		return null;
 	}
 
@@ -287,18 +288,37 @@ public class ClientTickHandler implements ITickHandler {
 		Item item = Item.itemsList[itemStack.itemID];
 		String itemName = Item.itemsList[itemStack.itemID].getClass().getName();
 		// if tool or shears or specific item, check effective
-		if(item instanceof ItemTool || item instanceof ItemShears || StoneBreaker.config.tools.contains(itemName)) {
-			if(StoneBreaker.config.effective_tool_only && item.getStrVsBlock(itemStack, block, metadata) <= 1.0F) {
+		if(block.blockMaterial == Material.grass
+				|| block.blockMaterial == Material.ground
+				|| block.blockMaterial == Material.wood
+				|| block.blockMaterial == Material.rock
+				|| block.blockMaterial == Material.iron
+				|| block.blockMaterial == Material.anvil
+				|| block.blockMaterial == Material.clay
+				|| block.blockMaterial == Material.pumpkin
+				|| block.blockMaterial == Material.web
+				|| block.blockMaterial == Material.sand)
+		{
+			if(item instanceof ItemTool || item instanceof ItemShears || StoneBreaker.config.tools.contains(itemName)) {
+				if(StoneBreaker.config.effective_tool_only && item.getStrVsBlock(itemStack, block, metadata) <= 1.0F) {
+					return false;
+				}
+			} else {
 				return false;
 			}
-		} else {
-			return false;
 		}
 		return true;
 	}
 
 	private boolean isValidTarget(int blockId, int metadata) {
-		return StoneBreaker.config.blocks.contains(blockId);
+		for(int[] pair : StoneBreaker.config.blocks) {
+			if(pair[0] == blockId) {
+				if(pair[1] == OreDictionary.WILDCARD_VALUE || pair[1] == metadata) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private boolean continueBreak() {
@@ -342,6 +362,8 @@ public class ClientTickHandler implements ITickHandler {
 		Minecraft mc = Minecraft.getMinecraft();
 
 		int blockId = mc.theWorld.getBlockId(x, y, z);
+		int metadata = mc.theWorld.getBlockMetadata(x, y, z);
+		if(isValidTarget(blockId, metadata) == false) return false;
 		// air
 		if(blockId == 0) return false;
 		// bedrock
@@ -352,7 +374,6 @@ public class ClientTickHandler implements ITickHandler {
 		// liquid or air
 		if(block.blockMaterial.isLiquid() || block.blockMaterial == Material.air) return false;
 
-		int metadata = mc.theWorld.getBlockMetadata(x, y, z);
 
 		// this is not a target block type
 		if(targetBlockId == Block.grass.blockID && blockId == Block.dirt.blockID) {
@@ -382,7 +403,7 @@ public class ClientTickHandler implements ITickHandler {
 		block.onBlockDestroyedByPlayer(mc.theWorld, x, y, z, blockId);
 		mc.thePlayer.sendQueue.addToSendQueue(new Packet14BlockDig(2, x, y, z, 0));
 		mc.theWorld.playAuxSFX(2001, x, y, z, block.blockID + (mc.theWorld.getBlockMetadata(x, y, z) << 12));
-		boolean flag = mc.theWorld.setBlockAndMetadataWithNotify(x, y, z, 0, 0, 3);
+		boolean flag = mc.theWorld.setBlock(x, y, z, 0, 0, 3);
 
 		if (block != null && flag) {
 			block.removeBlockByPlayer(mc.theWorld, mc.thePlayer, x, y, z);
@@ -427,7 +448,7 @@ public class ClientTickHandler implements ITickHandler {
 			Minecraft mc = Minecraft.getMinecraft();
 			mc.thePlayer.sendQueue.addToSendQueue(packet);
 		} catch (IOException e) {
-			// TODO ©“®¶¬‚³‚ê‚½ catch ƒuƒƒbƒN
+			// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
 			e.printStackTrace();
 		}
 	}

@@ -13,40 +13,40 @@ public class ConnectionHandler implements IConnectionHandler {
 	@Override
 	public void playerLoggedIn(Player player, NetHandler netHandler,
 			INetworkManager manager) {
-		StoneBreaker.config.sendTargetToPlayer(manager);
+		StoneBreaker.config.sendConfigToPlayer(manager);
 	}
 
 	@Override
 	public String connectionReceived(NetLoginHandler netHandler,
 			INetworkManager manager) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 		return null;
 	}
 
 	@Override
 	public void connectionOpened(NetHandler netClientHandler, String server,
 			int port, INetworkManager manager) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 
 	@Override
 	public void connectionOpened(NetHandler netClientHandler,
 			MinecraftServer server, INetworkManager manager) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 
 	@Override
 	public void connectionClosed(INetworkManager manager) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 
 	@Override
 	public void clientLoggedIn(NetHandler clientHandler,
 			INetworkManager manager, Packet1Login login) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
 
 	}
 

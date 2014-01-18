@@ -1,6 +1,7 @@
 package stonebreaker;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,36 +15,55 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.Player;
 
 public class Config {
 	public static final String channel = "sb";
-	public static Set<Integer> blocks = new LinkedHashSet();
+	public static Set<int[]> blocks = new LinkedHashSet();
 	public static Set<String> tools = new LinkedHashSet();
 	public static boolean effective_tool_only = true;
 	public static EnumMode mode = EnumMode.off;
 	public static List<EnumMode> allowMode = new ArrayList();
-	public int break_limit = 0;
-	public int distance_limit = 0;
-	public int virtical_distance_limit = 0;
-	public boolean drop_to_player = true;
-	public boolean allow_register = true;
+	public static int break_limit = 0;
+	public static int distance_limit = 0;
+	public static int virtical_distance_limit = 0;
+	public static boolean drop_to_player = true;
+	public static boolean allow_register = true;
 
 	public void load(File file) {
 		Configuration cfg = new Configuration(file);
 		try {
 			cfg.load();
-			String value = cfg.get(Configuration.CATEGORY_GENERAL, "blockIDs", "14,15,16,21,56,73,74,89").getString();
+			String value = cfg.get(Configuration.CATEGORY_GENERAL, "blockIDs", "14,15,16,21,56,73,74,89,129,153").getString();
 			for(String token : value.split(",")) {
 				try {
-					Integer blockId = Integer.parseInt(token.trim());
-					if(blockId != null) {
-						blocks.add(blockId.intValue());
+					String[] tmp = token.split(":");
+					if(tmp.length == 1) {
+						Integer blockId = Integer.parseInt(token.trim());
+						if(blockId != null) {
+							blocks.add(new int[] {blockId.intValue(), OreDictionary.WILDCARD_VALUE });
+						}
+					}
+					else if(tmp.length == 2){
+						Integer blockId = Integer.parseInt(tmp[0].trim());
+						Integer metadata = Integer.parseInt(tmp[1].trim());
+						if(blockId != null) {
+							blocks.add(new int[] {blockId.intValue(),metadata.intValue()});
+						}
 					}
 				}
 				catch(NumberFormatException e) {
 
+				}
+			}
+
+			value = cfg.get(Configuration.CATEGORY_GENERAL, "tools", "").getString();
+			for(String token : value.split(",")) {
+				String tool = token.trim();
+				if(!tool.isEmpty()) {
+					tools.add(tool);
 				}
 			}
 
@@ -104,16 +124,39 @@ public class Config {
 		return mode;
 	}
 
-	public void sendTargetToPlayer(INetworkManager manager) {
+	public void sendConfigToPlayer(INetworkManager manager) {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		DataOutputStream stream = new DataOutputStream(bytes);
 		try {
-			stream.writeUTF(EnumCommand.TARGET.toString());
+			stream.writeUTF(EnumCommand.CONFIG.toString());
+
+			// blocks
 			stream.writeInt(StoneBreaker.config.blocks.size());
-			for(int blockId : StoneBreaker.config.blocks) {
-				stream.writeInt(blockId);
-				stream.writeInt(0);
+			for(int[] pair : StoneBreaker.config.blocks) {
+				stream.writeInt(pair[0]);
+				stream.writeInt(pair[1]);
 			}
+
+			// tools
+			stream.writeInt(StoneBreaker.config.tools.size());
+			for(String tool : StoneBreaker.config.tools) {
+				stream.writeUTF(tool);
+			}
+
+			// effective_tool_only
+			stream.writeBoolean(effective_tool_only);
+
+			// allow mode
+			stream.writeInt(EnumMode.values().length);
+			for(EnumMode m : EnumMode.values()) {
+				stream.writeBoolean(allowMode.contains(m));
+			}
+
+			stream.writeInt(break_limit);
+			stream.writeInt(distance_limit);
+			stream.writeInt(virtical_distance_limit);
+			stream.writeBoolean(drop_to_player);
+			stream.writeBoolean(allow_register);
 
 			Packet250CustomPayload packet = new Packet250CustomPayload();
 			packet.channel = Config.channel;
@@ -122,9 +165,45 @@ public class Config {
 
 			manager.addToSendQueue(packet);
 		} catch (IOException e) {
-			// TODO é©ìÆê∂ê¨Ç≥ÇÍÇΩ catch ÉuÉçÉbÉN
+			// TODO Ëá™ÂãïÁîüÊàê„Åï„Çå„Åü catch „Éñ„É≠„ÉÉ„ÇØ
 			e.printStackTrace();
 		}
+	}
+
+	public void readPacket(DataInputStream stream) throws IOException {
+		blocks.clear();
+		int size = stream.readInt();
+		for(int i = 0; i < size; ++i) {
+			int blockId = stream.readInt();
+			int metadata = stream.readInt();
+			blocks.add(new int[]{blockId, metadata});
+		}
+
+		tools.clear();
+		size = stream.readInt();
+		for(int i = 0; i < size; ++i) {
+			String tool = stream.readUTF();
+			tools.add(tool);
+		}
+
+		effective_tool_only = stream.readBoolean();
+
+		allowMode.clear();
+		size = stream.readInt();
+		for(int i = 0; i < size; ++i) {
+			if(stream.readBoolean()) {
+				allowMode.add(EnumMode.values()[i]);
+			}
+		}
+		if(allowMode.contains(EnumMode.off) == false){
+			allowMode.add(EnumMode.off);
+		}
+
+		break_limit = stream.readInt();
+		distance_limit = stream.readInt();
+		virtical_distance_limit = stream.readInt();
+		drop_to_player = stream.readBoolean();
+		allow_register = stream.readBoolean();
 	}
 
 }

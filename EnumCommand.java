@@ -1,5 +1,5 @@
 package stonebreaker;
 
 public enum EnumCommand {
-	BREAK, REGISTER, TARGET
+	BREAK, REGISTER, CONFIG
 }

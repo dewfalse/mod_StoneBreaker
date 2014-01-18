@@ -16,13 +16,14 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 
-@Mod(modid = "StoneBreaker", name = "StoneBreaker", version = "1.0")
+@Mod(modid = StoneBreaker.modid, name = StoneBreaker.modid, version = "1.0")
 @NetworkMod(clientSideRequired = false, serverSideRequired = true, channels = { Config.channel }, packetHandler = PacketHandler.class, connectionHandler = ConnectionHandler.class, versionBounds = "[1.0]")
 public class StoneBreaker {
+	public static final String modid = "StoneBreaker";
 	@SidedProxy(clientSide = "stonebreaker.ClientProxy", serverSide = "stonebreaker.CommonProxy")
 	public static CommonProxy proxy;
 
-	@Instance("StoneBreaker")
+	@Instance(modid)
 	public static StoneBreaker instance;
 
 	public static Logger logger = Logger.getLogger("Minecraft");
@@ -41,9 +42,6 @@ public class StoneBreaker {
 
 	@Mod.ServerStarting
 	public void serverStarting(FMLServerStartingEvent event){
-		//event.registerServerCommand(new CommandMode());
-		//event.registerServerCommand(new CommandTarget());
-		//event.registerServerCommand(new CommandTool());
-		//event.registerServerCommand(new CommandLimit());
+		event.registerServerCommand(new CommandTarget());
 	}
 }
